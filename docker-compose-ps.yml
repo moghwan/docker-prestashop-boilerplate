@@ -1,0 +1,35 @@
+version: '2'
+services:
+ 
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: prestashop
+    volumes:
+      - ./.docker/data/mysql/:/var/lib/mysql
+      - ./.docker/logs/mysql/:/var/log/mysql
+    ports:
+      - "3306:3306"
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      -  8080:80
+    env_file:
+      - .env
+    environment:
+      PMA_HOST: mysql
+      VIRTUAL_HOST: phpmyadmin.test  
+  
+  app_dev:
+    build: .
+    environment:
+      - VIRTUAL_HOST=prestashop.test
+    volumes : 
+      - ./:/var/www/html:rw
+    restart: always
+    ports:
+      - 80:80
+    links:
+      - "mysql"
